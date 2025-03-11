@@ -62,8 +62,13 @@ function LoginFormContent() {
       } else if (error?.status === 500) {
         setError("Server error occurred. Please try again later.");
       } else {
-        setError(error?.message || "Failed to sign in. Please try again.");
+        setError(error.message || "Failed to sign in. Please try again.");
       }
+      return; // Add early return to prevent further execution
+    }
+    
+    // Only set loading to false if no error occurred
+    setIsLoading(false);
     }
   };
 
