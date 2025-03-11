@@ -36,7 +36,6 @@ function LoginFormContent() {
     }
 
     try {
-      console.log("Attempting to sign in with:", email);
       const { data, error } = await signIn(email, password);
       
       if (error) {
@@ -47,12 +46,9 @@ function LoginFormContent() {
         throw new Error("Authentication failed - no user data received");
       }
 
-      console.log("Sign in successful, user:", data.user.id);
-      console.log("Navigating to dashboard");
       navigate("/profile");
     } catch (error: any) {
       console.error("Sign in error:", error);
-      setIsLoading(false);
 
       // Handle specific error messages
       if (error?.message?.includes("Invalid login credentials")) {
@@ -60,15 +56,16 @@ function LoginFormContent() {
           "Invalid email or password. Please check your credentials and try again."
         );
       } else if (error?.status === 500) {
-        setError("Server error occurred. Please try again later.");
+        setError(
+          "We're experiencing technical difficulties. Please try again in a few minutes."
+        );
+      } else if (error?.message?.includes("Failed to fetch") || error?.message?.includes("NetworkError")) {
+        setError("Unable to connect to the server. Please check your internet connection and try again.");
       } else {
-        setError(error.message || "Failed to sign in. Please try again.");
+        setError(error.message || "An unexpected error occurred. Please try again.");
       }
-      return; // Add early return to prevent further execution
-    }
-    
-    // Only set loading to false if no error occurred
-    setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 

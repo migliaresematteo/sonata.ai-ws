@@ -47,9 +47,7 @@ function SignUpFormContent() {
     }
 
     try {
-      console.log("Attempting to sign up with:", email);
       const { data, error } = await signUp(email, password, fullName);
-      console.log("Signup result:", data);
 
       if (error) {
         throw error;
@@ -64,14 +62,23 @@ function SignUpFormContent() {
       navigate("/login");
     } catch (error: any) {
       console.error("Signup error:", error);
-      setIsLoading(false);
 
       // Handle specific error messages
       if (error?.message?.includes("User already registered")) {
         setError("This email is already registered. Please sign in instead.");
+      } else if (error?.status === 500) {
+        setError(
+          "We're experiencing technical difficulties. Please try again in a few minutes."
+        );
+      } else if (error?.message?.includes("Failed to fetch") || error?.message?.includes("NetworkError")) {
+        setError("Unable to connect to the server. Please check your internet connection and try again.");
+      } else if (error?.message?.includes("Invalid email")) {
+        setError("Please enter a valid email address.");
       } else {
-        setError(error.message || "Error creating account");
+        setError(error.message || "Error creating account. Please try again.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
