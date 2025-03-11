@@ -37,22 +37,33 @@ function LoginFormContent() {
 
     try {
       console.log("Attempting to sign in with:", email);
-      const result = await signIn(email, password);
-      console.log("Sign in successful, user:", result?.user?.id);
+      const { data, error } = await signIn(email, password);
+      
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.user?.id) {
+        throw new Error("Authentication failed - no user data received");
+      }
+
+      console.log("Sign in successful, user:", data.user.id);
       console.log("Navigating to dashboard");
       navigate("/profile");
     } catch (error: any) {
       console.error("Sign in error:", error);
+      setIsLoading(false);
 
       // Handle specific error messages
       if (error?.message?.includes("Invalid login credentials")) {
         setError(
-          "Invalid email or password. Please check your credentials and try again.",
+          "Invalid email or password. Please check your credentials and try again."
         );
+      } else if (error?.status === 500) {
+        setError("Server error occurred. Please try again later.");
       } else {
-        setError(error?.message || "Invalid email or password");
+        setError(error?.message || "Failed to sign in. Please try again.");
       }
-      setIsLoading(false);
     }
   };
 

@@ -48,14 +48,23 @@ function SignUpFormContent() {
 
     try {
       console.log("Attempting to sign up with:", email);
-      const result = await signUp(email, password, fullName);
-      console.log("Signup result:", result);
+      const { data, error } = await signUp(email, password, fullName);
+      console.log("Signup result:", data);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.user?.id) {
+        throw new Error("Registration failed - no user data received");
+      }
 
       // Show success message before redirecting
       alert("Account created successfully! Please sign in.");
       navigate("/login");
     } catch (error: any) {
       console.error("Signup error:", error);
+      setIsLoading(false);
 
       // Handle specific error messages
       if (error?.message?.includes("User already registered")) {
@@ -63,7 +72,6 @@ function SignUpFormContent() {
       } else {
         setError(error.message || "Error creating account");
       }
-      setIsLoading(false);
     }
   };
 
