@@ -6,7 +6,7 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, fullName: string) => Promise<any>;
   signOut: () => Promise<any>;
   loading: boolean;
 };
@@ -44,8 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return supabase.auth.signInWithPassword({ email, password });
   };
 
-  const signUp = (email: string, password: string) => {
-    return supabase.auth.signUp({ email, password });
+  const signUp = (email: string, password: string, fullName: string) => {
+    return supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName
+        }
+      }
+    });
   };
 
   const signOut = () => {
